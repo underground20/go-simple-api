@@ -1,9 +1,9 @@
 package models
 
 type Employee struct {
-	Id     int    `json:"id"`
-	Name   string `json:"name"`
-	Sex    string `json:"sex"`
-	Age    int    `json:"age"`
-	Salary int    `json:"salary"`
+	Id     int    `json:"id" validate:"required"`
+	Name   string `json:"name" validate:"required"`
+	Sex    string `json:"sex" validate:"required"`
+	Age    int    `json:"age" validate:"required"`
+	Salary int    `json:"salary" validate:"required"`
 }

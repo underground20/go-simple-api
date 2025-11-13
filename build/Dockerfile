@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine3.19 AS GO_BUILD
+FROM golang:1.24.7-alpine3.22 AS GO_BUILD
 ENV CGO_ENABLED 0
 COPY . /app
 WORKDIR /app/cmd/api
