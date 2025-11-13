@@ -1,11 +1,11 @@
 package main
 
 import (
-	"app/employee/handler"
-	db "app/employee/storage/mongo"
 	"app/internal/config"
-	loggingMiddleware "app/internal/middleware/logger"
-	"app/internal/middleware/metrics"
+	"app/internal/employee/handler"
+	db "app/internal/employee/storage/mongo"
+	loggingMiddleware "app/internal/http/middleware/logger"
+	"app/internal/http/middleware/metrics"
 	"context"
 	"log/slog"
 	"os"

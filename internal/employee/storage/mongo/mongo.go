@@ -1,8 +1,8 @@
 package mongo
 
 import (
-	"app/employee/models"
-	"app/employee/storage"
+	"app/internal/employee/models"
+	"app/internal/employee/storage"
 	"context"
 	"errors"
 	"fmt"

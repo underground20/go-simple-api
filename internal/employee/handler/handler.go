@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"app/employee/models"
-	"app/employee/storage"
+	"app/internal/employee/models"
+	"app/internal/employee/storage"
 	"app/internal/http/response"
 	"fmt"
 	"log/slog"

@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"app/employee/models"
+	"app/internal/employee/models"
 	"errors"
 	"sync"
 )

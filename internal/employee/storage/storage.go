@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"app/employee/models"
+	"app/internal/employee/models"
 	"errors"
 	"fmt"
 )
