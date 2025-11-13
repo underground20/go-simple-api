@@ -5,6 +5,7 @@ import (
 	db "app/employee/storage/mongo"
 	"app/internal/config"
 	loggingMiddleware "app/internal/middleware/logger"
+	"app/internal/middleware/metrics"
 	"context"
 	"log/slog"
 	"os"
@@ -29,6 +30,10 @@ func main() {
 func setupRouter(handler *handler.Handler, logger *slog.Logger) *gin.Engine {
 	router := gin.Default()
 	router.Use(loggingMiddleware.SlogMiddleware(logger))
+	router.Use(metrics.PrometheusMiddleware())
+
+	router.GET("/metrics", metrics.PrometheusHandler())
+
 	router.POST("/employee/add", handler.CreateEmployee)
 	router.GET("/employee/:id", handler.GetEmployee)
 	router.PUT("/employee/:id", handler.UpdateEmployee)
