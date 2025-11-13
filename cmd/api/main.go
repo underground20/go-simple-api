@@ -2,8 +2,8 @@ package main
 
 import (
 	"app/internal/config"
-	"app/internal/employee/handler"
-	db "app/internal/employee/storage/mongo"
+	"app/internal/department"
+	"app/internal/employee"
 	loggingMiddleware "app/internal/http/middleware/logger"
 	"app/internal/http/middleware/metrics"
 	"context"
@@ -20,26 +20,18 @@ func main() {
 	ctx := context.Background()
 	cfg := config.MustLoad()
 	client := clientConnect(logger, cfg, ctx)
-	collection := client.Database(cfg.Dbname).Collection("employees")
-	storage := db.NewStorage(collection, ctx)
-	employeeHandler := handler.NewHandler(storage, logger)
-	router := setupRouter(employeeHandler, logger)
+	db := client.Database(cfg.Dbname)
+	router := setupRouter(logger)
+	employee.Setup(router, db, logger, ctx)
+	department.Setup(router, db, logger, ctx)
 	router.Run()
 }
 
-func setupRouter(handler *handler.Handler, logger *slog.Logger) *gin.Engine {
+func setupRouter(logger *slog.Logger) *gin.Engine {
 	router := gin.Default()
 	router.Use(loggingMiddleware.SlogMiddleware(logger))
 	router.Use(metrics.PrometheusMiddleware())
-
 	router.GET("/metrics", metrics.PrometheusHandler())
-
-	router.POST("/employee/add", handler.CreateEmployee)
-	router.GET("/employee/:id", handler.GetEmployee)
-	router.PUT("/employee/:id", handler.UpdateEmployee)
-	router.DELETE("/employee/:id", handler.DeleteEmployee)
-	router.GET("/employees", handler.GetEmployees)
-
 	return router
 }
 

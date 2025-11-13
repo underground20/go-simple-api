@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -23,18 +24,18 @@ func NewStorage(collection *mongo.Collection, context context.Context) *Storage 
 	}
 }
 
-func (s *Storage) Insert(e *models.Employee) (int, error) {
+func (s *Storage) Insert(e *models.Employee) error {
 	result, err := s.collection.InsertOne(s.context, e)
 	if err != nil {
-		return 0, fmt.Errorf(err.Error())
+		return fmt.Errorf(err.Error())
 	}
 
-	insertedID, ok := result.InsertedID.(int)
+	_, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return 0, fmt.Errorf("could not convert inserted ID to int")
+		return fmt.Errorf("could not convert inserted ID")
 	}
 
-	return insertedID, nil
+	return nil
 }
 
 func (s *Storage) Delete(id int) error {
@@ -66,8 +67,32 @@ func (s *Storage) Get(id int) (models.Employee, error) {
 }
 
 func (s *Storage) GetAll() []models.Employee {
+	return s.getAllByFilter(bson.M{})
+}
+
+func (s *Storage) GetAllByIds(ids []int) []models.Employee {
+	filter := bson.M{"id": bson.M{"$in": ids}}
+	return s.getAllByFilter(filter)
+}
+
+func (s *Storage) Update(id int, e models.Employee) error {
+	filter := bson.M{"id": id}
+	update := bson.M{"$set": e}
+	result, err := s.collection.UpdateOne(s.context, filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return &storage.EmployeeNotFoundErr{Id: id}
+	}
+
+	return nil
+}
+
+func (s *Storage) getAllByFilter(filter any) []models.Employee {
 	var employees []models.Employee
-	cursor, err := s.collection.Find(s.context, bson.M{})
+	cursor, err := s.collection.Find(s.context, filter)
 	if err != nil {
 		return []models.Employee{}
 	}
@@ -88,19 +113,4 @@ func (s *Storage) GetAll() []models.Employee {
 	}
 
 	return employees
-}
-
-func (s *Storage) Update(id int, e models.Employee) error {
-	filter := bson.M{"id": id}
-	update := bson.M{"$set": e}
-	result, err := s.collection.UpdateOne(s.context, filter, update)
-	if err != nil {
-		return err
-	}
-
-	if result.MatchedCount == 0 {
-		return &storage.EmployeeNotFoundErr{Id: id}
-	}
-
-	return nil
 }

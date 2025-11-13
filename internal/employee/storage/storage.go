@@ -7,11 +7,12 @@ import (
 )
 
 type Storage interface {
-	Insert(e *models.Employee) (int, error)
+	Insert(e *models.Employee) error
 	Get(id int) (models.Employee, error)
 	Update(id int, e models.Employee) error
 	Delete(id int) error
 	GetAll() []models.Employee
+	GetAllByIds(ids []int) []models.Employee
 }
 
 type EmployeeNotFoundErr struct {

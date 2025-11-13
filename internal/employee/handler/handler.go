@@ -38,15 +38,15 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Insert(&employee)
+	err := h.storage.Insert(&employee)
 	if err != nil {
 		h.logger.Error("Failed to insert employee", err)
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
 
-	c.JSON(http.StatusCreated, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusCreated, response.Response{
+		Message: "Employee created successfully",
 	})
 }
 

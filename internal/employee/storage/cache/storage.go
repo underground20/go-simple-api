@@ -19,7 +19,7 @@ func NewMemoryStorage() *MemoryStorage {
 	}
 }
 
-func (s *MemoryStorage) Insert(e *models.Employee) (int, error) {
+func (s *MemoryStorage) Insert(e *models.Employee) error {
 	s.Lock()
 	e.Id = s.counter
 	s.data[e.Id] = *e
@@ -27,7 +27,7 @@ func (s *MemoryStorage) Insert(e *models.Employee) (int, error) {
 	s.counter++
 	s.Unlock()
 
-	return s.counter, nil
+	return nil
 }
 
 func (s *MemoryStorage) Delete(id int) error {
