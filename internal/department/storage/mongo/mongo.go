@@ -27,7 +27,7 @@ func NewStorage(collection *mongo.Collection, context context.Context) *Storage 
 func (s *Storage) Insert(d *models.Department) error {
 	result, err := s.collection.InsertOne(s.context, d)
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 
 	_, ok := result.InsertedID.(primitive.ObjectID)
@@ -69,4 +69,19 @@ func (s *Storage) Get(id int) (models.Department, error) {
 	}
 
 	return department, nil
+}
+
+func (s *Storage) GetAll() ([]models.Department, error) {
+	cursor, err := s.collection.Find(s.context, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(s.context)
+
+	var departments []models.Department
+	if err = cursor.All(s.context, &departments); err != nil {
+		return nil, err
+	}
+
+	return departments, nil
 }

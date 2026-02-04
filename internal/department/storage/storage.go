@@ -10,6 +10,7 @@ type Storage interface {
 	Insert(e *models.Department) error
 	Get(id int) (models.Department, error)
 	Update(departmentId int, employeeId int) error
+	GetAll() ([]models.Department, error)
 }
 
 type DepartmentNotFoundErr struct {

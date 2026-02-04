@@ -6,7 +6,7 @@ import (
 	emp "app/internal/employee/models"
 	empStorage "app/internal/employee/storage"
 	"app/internal/http/response"
-	"fmt"
+	"app/lib/logger"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -55,7 +55,7 @@ func (h *Handler) CreateDepartment(c *gin.Context) {
 
 	err := h.departmentStorage.Insert(&department)
 	if err != nil {
-		h.logger.Error("Failed to insert department", err)
+		h.logger.Error("Failed to insert department", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -76,7 +76,7 @@ func (h *Handler) AddEmployee(c *gin.Context) {
 
 	err := h.departmentStorage.Update(resp.DepartmentId, resp.EmployeeId)
 	if err != nil {
-		h.logger.Error("Failed to add employee to department", err)
+		h.logger.Error("Failed to add employee to department", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -87,7 +87,7 @@ func (h *Handler) AddEmployee(c *gin.Context) {
 func (h *Handler) GetDepartment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		fmt.Printf("failed to convert id param to int: %s\n", err.Error())
+		h.logger.Error("failed to convert id param to int", logger.Err(err))
 		c.JSON(http.StatusBadRequest, response.Response{
 			Message: err.Error(),
 		})
@@ -101,7 +101,7 @@ func (h *Handler) GetDepartment(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Failed to get department", err)
+		h.logger.Error("Failed to get department", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -115,4 +115,16 @@ func (h *Handler) GetDepartment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, departmentResponse)
+}
+
+func (h *Handler) GetTree(c *gin.Context) {
+	departments, err := h.departmentStorage.GetAll()
+	if err != nil {
+		h.logger.Error("Failed to get all departments", logger.Err(err))
+		c.JSON(http.StatusInternalServerError, response.UnhandledError())
+		return
+	}
+
+	tree := BuildTree(departments)
+	c.JSON(http.StatusOK, tree)
 }

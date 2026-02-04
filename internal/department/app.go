@@ -19,4 +19,5 @@ func Setup(router *gin.Engine, db *mongo.Database, logger *slog.Logger, ctx cont
 	router.GET("/department/:id", newHandler.GetDepartment)
 	router.POST("/department/add", newHandler.CreateDepartment)
 	router.POST("department/add-employee", newHandler.AddEmployee)
+	router.GET("/departments/tree", newHandler.GetTree)
 }
