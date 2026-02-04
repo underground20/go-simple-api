@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// swagger:model
 type Response struct {
 	Message string `json:"message"`
 }

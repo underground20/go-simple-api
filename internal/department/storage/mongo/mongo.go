@@ -85,3 +85,26 @@ func (s *Storage) GetAll() ([]models.Department, error) {
 
 	return departments, nil
 }
+
+func (s *Storage) ChangeRoot(departmentId int, newRootId int) error {
+	if _, err := s.Get(newRootId); err != nil {
+		return err
+	}
+
+	filter := bson.M{"id": departmentId}
+	update := bson.M{
+		"$set": bson.M{
+			"rootid": newRootId,
+		},
+	}
+	result, err := s.collection.UpdateOne(s.context, filter, update)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	if result.MatchedCount == 0 {
+		return &storage.DepartmentNotFoundErr{Id: departmentId}
+	}
+
+	return nil
+}

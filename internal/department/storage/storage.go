@@ -11,6 +11,7 @@ type Storage interface {
 	Get(id int) (models.Department, error)
 	Update(departmentId int, employeeId int) error
 	GetAll() ([]models.Department, error)
+	ChangeRoot(departmentId int, newRootId int) error
 }
 
 type DepartmentNotFoundErr struct {

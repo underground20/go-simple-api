@@ -1,0 +1,260 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "go-simple-api",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/department/add": {
+      "post": {
+        "tags": ["department"],
+        "summary": "Creates a new department.",
+        "description": "Creates a new department.",
+        "operationId": "createDepartment",
+        "parameters": [
+          {
+            "name": "department",
+            "in": "body",
+            "description": "The department to create.",
+            "schema": {
+              "$ref": "#/definitions/Department"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Department created successfully."
+          },
+          "400": {
+            "description": "Invalid json format."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/department/add-employee": {
+      "post": {
+        "tags": ["department"],
+        "summary": "Adds an employee to a department.",
+        "description": "Adds an employee to a department.",
+        "operationId": "addEmployee",
+        "parameters": [
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "The employee to add.",
+            "schema": {
+              "$ref": "#/definitions/AddEmployeeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee added successfully."
+          },
+          "400": {
+            "description": "Invalid json format."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/department/{id}": {
+      "get": {
+        "tags": ["department"],
+        "summary": "Gets a department by id.",
+        "description": "Gets a department by id.",
+        "operationId": "getDepartment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the department to get.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The department.",
+            "schema": {
+              "$ref": "#/definitions/DepartmentResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid id format."
+          },
+          "404": {
+            "description": "Department not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/department/{id}/change-root": {
+      "put": {
+        "tags": ["department"],
+        "summary": "Changes the root of a department.",
+        "description": "Changes the root of a department.",
+        "operationId": "changeRoot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the department to change.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "root",
+            "in": "body",
+            "description": "The new root.",
+            "schema": {
+              "$ref": "#/definitions/ChangeRootRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Root changed successfully."
+          },
+          "400": {
+            "description": "Invalid json or id format."
+          },
+          "404": {
+            "description": "Department not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/departments/tree": {
+      "get": {
+        "tags": ["department"],
+        "summary": "Gets the department tree.",
+        "description": "Gets the department tree.",
+        "operationId": "getTree",
+        "responses": {
+          "200": {
+            "description": "The department tree.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DepartmentTree"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Department": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "root_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "employee_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "DepartmentTree": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DepartmentTree"
+          }
+        }
+      }
+    },
+    "DepartmentResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "root_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "employees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Employee"
+          }
+        }
+      }
+    },
+    "AddEmployeeRequest": {
+      "type": "object",
+      "properties": {
+        "department_id": {
+          "type": "integer"
+        },
+        "employee_id": {
+          "type": "integer"
+        }
+      }
+    },
+    "ChangeRootRequest": {
+      "type": "object",
+      "properties": {
+        "root_id": {
+          "type": "integer"
+        }
+      }
+    },
+    "Employee": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sex": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "position": {
+          "type": "string"
+        },
+        "salary": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
