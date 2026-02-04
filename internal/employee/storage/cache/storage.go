@@ -2,7 +2,7 @@ package cache
 
 import (
 	"app/internal/employee/models"
-	"errors"
+	"app/internal/employee/storage"
 	"sync"
 )
 
@@ -32,8 +32,12 @@ func (s *MemoryStorage) Insert(e *models.Employee) error {
 
 func (s *MemoryStorage) Delete(id int) error {
 	s.Lock()
+	defer s.Unlock()
+	if _, ok := s.data[id]; !ok {
+		return &storage.EmployeeNotFoundErr{Id: id}
+	}
+
 	delete(s.data, id)
-	s.Unlock()
 
 	return nil
 }
@@ -44,13 +48,22 @@ func (s *MemoryStorage) Get(id int) (models.Employee, error) {
 
 	employee, exists := s.data[id]
 	if !exists {
-		return models.Employee{}, errors.New("employee not found")
+		return models.Employee{}, &storage.EmployeeNotFoundErr{Id: id}
 	}
 
 	return employee, nil
 }
 
 func (s *MemoryStorage) GetAll() []models.Employee {
+	employees := make([]models.Employee, 0, len(s.data))
+	for _, value := range s.data {
+		employees = append(employees, value)
+	}
+
+	return employees
+}
+
+func (s *MemoryStorage) GetAllByIds([]int) []models.Employee {
 	employees := make([]models.Employee, 0, len(s.data))
 	for _, value := range s.data {
 		employees = append(employees, value)

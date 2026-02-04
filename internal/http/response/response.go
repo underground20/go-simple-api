@@ -15,14 +15,14 @@ func ValidationError(errs validator.ValidationErrors) Response {
 	var errors []string
 	for _, err := range errs {
 		errors = append(errors, fmt.Sprintf(
-			"field %s: %s",
-			err.Field(),
+			"field '%s' - %s",
+			strings.ToLower(err.Field()),
 			err.Tag(),
 		))
 	}
 
 	return Response{
-		Message: strings.Join(errors, "; "),
+		Message: "Validation error: " + strings.Join(errors, "; "),
 	}
 }
 

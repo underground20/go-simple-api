@@ -4,6 +4,7 @@ import (
 	"app/internal/employee/models"
 	"app/internal/employee/storage"
 	"app/internal/http/response"
+	"app/lib/logger"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -40,7 +41,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 
 	err := h.storage.Insert(&employee)
 	if err != nil {
-		h.logger.Error("Failed to insert employee", err)
+		h.logger.Error("Failed to insert employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -82,7 +83,7 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Failed to update employee", err)
+		h.logger.Error("Failed to update employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -109,7 +110,7 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Failed to get employee", err)
+		h.logger.Error("Failed to get employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
@@ -138,7 +139,7 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Failed to delete employee", err)
+		h.logger.Error("Failed to delete employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
 	}
