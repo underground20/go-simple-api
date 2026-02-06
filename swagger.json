@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "go-simple-api",
+    "title": "Organization management API",
     "version": "1.0.0"
   },
   "paths": {
@@ -154,6 +154,154 @@
           },
           "500": {
             "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/employee/add": {
+      "post": {
+        "tags": ["employee"],
+        "summary": "Creates a new employee.",
+        "description": "Creates a new employee.",
+        "operationId": "createEmployee",
+        "parameters": [
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "The employee to create.",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Employee created successfully."
+          },
+          "400": {
+            "description": "Invalid json format."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/employee/{id}": {
+      "put": {
+        "tags": ["employee"],
+        "summary": "Updates an employee.",
+        "description": "Updates an employee.",
+        "operationId": "updateEmployee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the employee to update.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "The employee to update.",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated employee id."
+          },
+          "400": {
+            "description": "Invalid json or id format."
+          },
+          "404": {
+            "description": "Employee not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "get": {
+        "tags": ["employee"],
+        "summary": "Gets an employee by id.",
+        "description": "Gets an employee by id.",
+        "operationId": "getEmployee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the employee to get.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The employee.",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          },
+          "400": {
+            "description": "Invalid id format."
+          },
+          "404": {
+            "description": "Employee not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      },
+      "delete": {
+        "tags": ["employee"],
+        "summary": "Deletes an employee by id.",
+        "description": "Deletes an employee by id.",
+        "operationId": "deleteEmployee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the employee to delete.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee deleted successfully."
+          },
+          "400": {
+            "description": "Invalid id format."
+          },
+          "404": {
+            "description": "Employee not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/employees": {
+      "get": {
+        "tags": ["employee"],
+        "summary": "Gets all employees.",
+        "description": "Gets all employees.",
+        "operationId": "getEmployees",
+        "responses": {
+          "200": {
+            "description": "The list of employees.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Employee"
+              }
+            }
           }
         }
       }
