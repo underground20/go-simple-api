@@ -6,6 +6,7 @@ import (
 	"app/internal/employee/storage/cache"
 	"app/internal/http/response"
 	"app/lib/logger"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -32,7 +33,7 @@ func TestDeleteEmployee_Success(t *testing.T) {
 		Position: "manager",
 		Salary:   20000,
 	}
-	memoryStorage.Insert(&employee)
+	memoryStorage.Insert(context.TODO(), &employee)
 
 	req, _ := http.NewRequest(http.MethodDelete, "/employee/1", nil)
 	w := httptest.NewRecorder()
@@ -42,7 +43,7 @@ func TestDeleteEmployee_Success(t *testing.T) {
 	var resp response.Response
 	json.NewDecoder(w.Body).Decode(&resp)
 	assert.Equal(t, "Employee 1 successfully deleted", resp.Message)
-	_, err := memoryStorage.Get(1)
+	_, err := memoryStorage.Get(req.Context(), 1)
 	assert.NotNil(t, err)
 }
 

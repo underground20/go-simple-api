@@ -3,16 +3,15 @@ package employee
 import (
 	"app/internal/employee/handler"
 	mongodb "app/internal/employee/storage/mongo"
-	"context"
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Setup(router *gin.Engine, db *mongo.Database, logger *slog.Logger, ctx context.Context) {
+func Setup(router *gin.Engine, db *mongo.Database, logger *slog.Logger) {
 	collection := db.Collection("employees")
-	storage := mongodb.NewStorage(collection, ctx)
+	storage := mongodb.NewStorage(collection)
 	handler := handler.NewHandler(storage, logger)
 
 	router.POST("/employee/add", handler.CreateEmployee)

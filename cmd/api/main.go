@@ -17,13 +17,12 @@ import (
 
 func main() {
 	logger := setupLogger()
-	ctx := context.Background()
 	cfg := config.MustLoad()
-	client := clientConnect(logger, cfg, ctx)
+	client := clientConnect(logger, cfg, context.Background())
 	db := client.Database(cfg.Dbname)
 	router := setupRouter(logger)
-	employee.Setup(router, db, logger, ctx)
-	department.Setup(router, db, logger, ctx)
+	employee.Setup(router, db, logger)
+	department.Setup(router, db, logger)
 	router.Run()
 }
 

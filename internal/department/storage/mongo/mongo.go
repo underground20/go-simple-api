@@ -14,18 +14,16 @@ import (
 
 type Storage struct {
 	collection *mongo.Collection
-	context    context.Context
 }
 
-func NewStorage(collection *mongo.Collection, context context.Context) *Storage {
+func NewStorage(collection *mongo.Collection) *Storage {
 	return &Storage{
 		collection,
-		context,
 	}
 }
 
-func (s *Storage) Insert(d *models.Department) error {
-	result, err := s.collection.InsertOne(s.context, d)
+func (s *Storage) Insert(ctx context.Context, d *models.Department) error {
+	result, err := s.collection.InsertOne(ctx, d)
 	if err != nil {
 		return err
 	}
@@ -38,14 +36,14 @@ func (s *Storage) Insert(d *models.Department) error {
 	return nil
 }
 
-func (s *Storage) Update(departmentId int, employeeId int) error {
+func (s *Storage) Update(ctx context.Context, departmentId int, employeeId int) error {
 	filter := bson.M{"id": departmentId}
 	update := bson.M{
 		"$addToSet": bson.M{
 			"employeeids": employeeId,
 		},
 	}
-	result, err := s.collection.UpdateOne(s.context, filter, update)
+	result, err := s.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
@@ -57,10 +55,10 @@ func (s *Storage) Update(departmentId int, employeeId int) error {
 	return nil
 }
 
-func (s *Storage) Get(id int) (models.Department, error) {
+func (s *Storage) Get(ctx context.Context, id int) (models.Department, error) {
 	var department models.Department
 	filter := bson.M{"id": id}
-	err := s.collection.FindOne(s.context, filter).Decode(&department)
+	err := s.collection.FindOne(ctx, filter).Decode(&department)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return models.Department{}, &storage.DepartmentNotFoundErr{Id: id}
@@ -71,23 +69,23 @@ func (s *Storage) Get(id int) (models.Department, error) {
 	return department, nil
 }
 
-func (s *Storage) GetAll() ([]models.Department, error) {
-	cursor, err := s.collection.Find(s.context, bson.M{})
+func (s *Storage) GetAll(ctx context.Context) ([]models.Department, error) {
+	cursor, err := s.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(s.context)
+	defer cursor.Close(ctx)
 
 	var departments []models.Department
-	if err = cursor.All(s.context, &departments); err != nil {
+	if err = cursor.All(ctx, &departments); err != nil {
 		return nil, err
 	}
 
 	return departments, nil
 }
 
-func (s *Storage) ChangeRoot(departmentId int, newRootId int) error {
-	if _, err := s.Get(newRootId); err != nil {
+func (s *Storage) ChangeRoot(ctx context.Context, departmentId int, newRootId int) error {
+	if _, err := s.Get(ctx, newRootId); err != nil {
 		return err
 	}
 
@@ -97,7 +95,7 @@ func (s *Storage) ChangeRoot(departmentId int, newRootId int) error {
 			"rootid": newRootId,
 		},
 	}
-	result, err := s.collection.UpdateOne(s.context, filter, update)
+	result, err := s.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}

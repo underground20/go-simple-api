@@ -3,6 +3,7 @@ package cache
 import (
 	"app/internal/employee/models"
 	"app/internal/employee/storage"
+	"context"
 	"sync"
 )
 
@@ -19,7 +20,7 @@ func NewMemoryStorage() *MemoryStorage {
 	}
 }
 
-func (s *MemoryStorage) Insert(e *models.Employee) error {
+func (s *MemoryStorage) Insert(_ context.Context, e *models.Employee) error {
 	s.Lock()
 	e.Id = s.counter
 	s.data[e.Id] = *e
@@ -30,7 +31,7 @@ func (s *MemoryStorage) Insert(e *models.Employee) error {
 	return nil
 }
 
-func (s *MemoryStorage) Delete(id int) error {
+func (s *MemoryStorage) Delete(_ context.Context, id int) error {
 	s.Lock()
 	defer s.Unlock()
 	if _, ok := s.data[id]; !ok {
@@ -42,7 +43,7 @@ func (s *MemoryStorage) Delete(id int) error {
 	return nil
 }
 
-func (s *MemoryStorage) Get(id int) (models.Employee, error) {
+func (s *MemoryStorage) Get(_ context.Context, id int) (models.Employee, error) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -54,7 +55,7 @@ func (s *MemoryStorage) Get(id int) (models.Employee, error) {
 	return employee, nil
 }
 
-func (s *MemoryStorage) GetAll() []models.Employee {
+func (s *MemoryStorage) GetAll(_ context.Context) []models.Employee {
 	employees := make([]models.Employee, 0, len(s.data))
 	for _, value := range s.data {
 		employees = append(employees, value)
@@ -63,7 +64,7 @@ func (s *MemoryStorage) GetAll() []models.Employee {
 	return employees
 }
 
-func (s *MemoryStorage) GetAllByIds([]int) []models.Employee {
+func (s *MemoryStorage) GetAllByIds(_ context.Context, _ []int) []models.Employee {
 	employees := make([]models.Employee, 0, len(s.data))
 	for _, value := range s.data {
 		employees = append(employees, value)
@@ -72,7 +73,7 @@ func (s *MemoryStorage) GetAllByIds([]int) []models.Employee {
 	return employees
 }
 
-func (s *MemoryStorage) Update(id int, e models.Employee) error {
+func (s *MemoryStorage) Update(_ context.Context, id int, e models.Employee) error {
 	s.Lock()
 	s.data[id] = e
 	s.Unlock()

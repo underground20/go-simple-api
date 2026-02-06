@@ -45,7 +45,7 @@ func TestCreateEmployee_Success(t *testing.T) {
 	var resp response.Response
 	json.NewDecoder(w.Body).Decode(&resp)
 	assert.Equal(t, "Employee created successfully", resp.Message)
-	emp, _ := memoryStorage.Get(1)
+	emp, _ := memoryStorage.Get(req.Context(), 1)
 	assert.Equal(t, "John Doe", emp.Name)
 }
 
@@ -70,7 +70,7 @@ func TestCreateEmployee_InvalidJSON(t *testing.T) {
 	var resp response.Response
 	json.NewDecoder(w.Body).Decode(&resp)
 	assert.Equal(t, "Invalid json format", resp.Message)
-	assert.Empty(t, memoryStorage.GetAll())
+	assert.Empty(t, memoryStorage.GetAll(req.Context()))
 }
 
 func TestCreateEmployee_ValidationError(t *testing.T) {
@@ -112,7 +112,7 @@ func TestCreateEmployee_ValidationError(t *testing.T) {
 			var resp response.Response
 			json.NewDecoder(w.Body).Decode(&resp)
 			assert.Equal(t, tt.wantMsg, resp.Message)
-			assert.Empty(t, memoryStorage.GetAll())
+			assert.Empty(t, memoryStorage.GetAll(req.Context()))
 		})
 	}
 }

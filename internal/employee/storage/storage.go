@@ -2,17 +2,18 @@ package storage
 
 import (
 	"app/internal/employee/models"
+	"context"
 	"errors"
 	"fmt"
 )
 
 type Storage interface {
-	Insert(e *models.Employee) error
-	Get(id int) (models.Employee, error)
-	Update(id int, e models.Employee) error
-	Delete(id int) error
-	GetAll() []models.Employee
-	GetAllByIds(ids []int) []models.Employee
+	Insert(ctx context.Context, e *models.Employee) error
+	Get(ctx context.Context, id int) (models.Employee, error)
+	Update(ctx context.Context, id int, e models.Employee) error
+	Delete(ctx context.Context, id int) error
+	GetAll(ctx context.Context) []models.Employee
+	GetAllByIds(ctx context.Context, ids []int) []models.Employee
 }
 
 type EmployeeNotFoundErr struct {

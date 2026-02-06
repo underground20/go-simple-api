@@ -39,7 +39,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 		return
 	}
 
-	err := h.storage.Insert(&employee)
+	err := h.storage.Insert(c.Request.Context(), &employee)
 	if err != nil {
 		h.logger.Error("Failed to insert employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
@@ -76,7 +76,7 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	err = h.storage.Update(id, employee)
+	err = h.storage.Update(c.Request.Context(), id, employee)
 	if err != nil {
 		if storage.IsEmployeeNotFound(err) {
 			c.JSON(http.StatusNotFound, response.Response{Message: err.Error()})
@@ -103,7 +103,7 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 		return
 	}
 
-	employee, err := h.storage.Get(id)
+	employee, err := h.storage.Get(c.Request.Context(), id)
 	if err != nil {
 		if storage.IsEmployeeNotFound(err) {
 			c.JSON(http.StatusNotFound, response.Response{Message: err.Error()})
@@ -119,7 +119,7 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 }
 
 func (h *Handler) GetEmployees(c *gin.Context) {
-	employees := h.storage.GetAll()
+	employees := h.storage.GetAll(c.Request.Context())
 	c.JSON(http.StatusOK, employees)
 }
 
@@ -132,7 +132,7 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 		return
 	}
 
-	err = h.storage.Delete(id)
+	err = h.storage.Delete(c.Request.Context(), id)
 	if err != nil {
 		if storage.IsEmployeeNotFound(err) {
 			c.JSON(http.StatusNotFound, response.Response{Message: err.Error()})

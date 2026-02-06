@@ -66,7 +66,7 @@ func (h *Handler) CreateDepartment(c *gin.Context) {
 		return
 	}
 
-	err := h.departmentStorage.Insert(&department)
+	err := h.departmentStorage.Insert(c.Request.Context(), &department)
 	if err != nil {
 		h.logger.Error("Failed to insert department", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
@@ -87,7 +87,7 @@ func (h *Handler) AddEmployee(c *gin.Context) {
 		return
 	}
 
-	err := h.departmentStorage.Update(req.DepartmentId, req.EmployeeId)
+	err := h.departmentStorage.Update(c.Request.Context(), req.DepartmentId, req.EmployeeId)
 	if err != nil {
 		h.logger.Error("Failed to add employee to department", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
@@ -107,7 +107,7 @@ func (h *Handler) GetDepartment(c *gin.Context) {
 		return
 	}
 
-	department, err := h.departmentStorage.Get(id)
+	department, err := h.departmentStorage.Get(c.Request.Context(), id)
 	if err != nil {
 		if depStorage.IsDepartmentNotFound(err) {
 			c.JSON(http.StatusNotFound, response.Response{Message: err.Error()})
@@ -119,7 +119,7 @@ func (h *Handler) GetDepartment(c *gin.Context) {
 		return
 	}
 
-	employees := h.employeeStorage.GetAllByIds(department.EmployeeIds)
+	employees := h.employeeStorage.GetAllByIds(c.Request.Context(), department.EmployeeIds)
 	departmentResponse := departmentResponse{
 		Id:        department.Id,
 		RootId:    department.RootId,
@@ -131,7 +131,7 @@ func (h *Handler) GetDepartment(c *gin.Context) {
 }
 
 func (h *Handler) GetTree(c *gin.Context) {
-	departments, err := h.departmentStorage.GetAll()
+	departments, err := h.departmentStorage.GetAll(c.Request.Context())
 	if err != nil {
 		h.logger.Error("Failed to get all departments", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
@@ -160,7 +160,7 @@ func (h *Handler) ChangeRoot(c *gin.Context) {
 		return
 	}
 
-	err = h.departmentStorage.ChangeRoot(id, req.RootId)
+	err = h.departmentStorage.ChangeRoot(c.Request.Context(), id, req.RootId)
 	if err != nil {
 		if depStorage.IsDepartmentNotFound(err) {
 			c.JSON(http.StatusNotFound, response.Response{Message: err.Error()})

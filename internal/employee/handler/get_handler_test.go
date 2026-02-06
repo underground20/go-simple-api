@@ -6,6 +6,7 @@ import (
 	"app/internal/employee/storage/cache"
 	"app/internal/http/response"
 	"app/lib/logger"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +32,7 @@ func TestGetEmployee_Success(t *testing.T) {
 		Age:      20,
 		Position: "manager",
 	}
-	memoryStorage.Insert(&employee)
+	memoryStorage.Insert(context.Background(), &employee)
 
 	req, _ := http.NewRequest(http.MethodGet, "/employee/1", nil)
 	w := httptest.NewRecorder()

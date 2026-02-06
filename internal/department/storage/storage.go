@@ -2,16 +2,17 @@ package storage
 
 import (
 	"app/internal/department/models"
+	"context"
 	"errors"
 	"fmt"
 )
 
 type Storage interface {
-	Insert(e *models.Department) error
-	Get(id int) (models.Department, error)
-	Update(departmentId int, employeeId int) error
-	GetAll() ([]models.Department, error)
-	ChangeRoot(departmentId int, newRootId int) error
+	Insert(ctx context.Context, e *models.Department) error
+	Get(ctx context.Context, id int) (models.Department, error)
+	Update(ctx context.Context, departmentId int, employeeId int) error
+	GetAll(ctx context.Context) ([]models.Department, error)
+	ChangeRoot(ctx context.Context, departmentId int, newRootId int) error
 }
 
 type DepartmentNotFoundErr struct {
