@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"app/internal/employee/messages"
 	"app/internal/employee/models"
 	"app/internal/employee/storage"
 	"app/internal/http/response"
+	"app/lib/kafka"
 	"app/lib/logger"
 	"fmt"
 	"log/slog"
@@ -15,12 +17,13 @@ import (
 )
 
 type Handler struct {
-	storage storage.Storage
-	logger  *slog.Logger
+	storage              storage.Storage
+	logger               *slog.Logger
+	notificationProducer kafka.Producer
 }
 
-func NewHandler(storage storage.Storage, logger *slog.Logger) *Handler {
-	return &Handler{storage: storage, logger: logger}
+func NewHandler(storage storage.Storage, logger *slog.Logger, notificationProducer kafka.Producer) *Handler {
+	return &Handler{storage: storage, logger: logger, notificationProducer: notificationProducer}
 }
 
 func (h *Handler) CreateEmployee(c *gin.Context) {
@@ -44,6 +47,18 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 		h.logger.Error("Failed to insert employee", logger.Err(err))
 		c.JSON(http.StatusInternalServerError, response.UnhandledError())
 		return
+	}
+
+	msg := &messages.EmployeeCreated{
+		Id:       employee.Id,
+		Name:     employee.Name,
+		Age:      employee.Age,
+		Position: employee.Position,
+	}
+
+	err = h.notificationProducer.SendMessage(c.Request.Context(), msg)
+	if err != nil {
+		h.logger.Error("Failed to send message to kafka", logger.Err(err))
 	}
 
 	c.JSON(http.StatusCreated, response.Response{

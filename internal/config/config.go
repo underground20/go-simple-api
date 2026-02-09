@@ -12,6 +12,18 @@ type Config struct {
 	DbUser   string `env:"DB_USER" env-required:"true"`
 	DbPass   string `env:"DB_PASS" env-required:"true"`
 	HostPort string `env:"HOST_PORT" env-required:"true"`
+	Kafka
+	Telegram
+}
+
+type Kafka struct {
+	Brokers []string `env:"KAFKA_BROKERS" env-required:"true"`
+	Topic   string   `env:"KAFKA_TOPIC" env-required:"true"`
+}
+
+type Telegram struct {
+	Token  string `env:"TELEGRAM_BOT_TOKEN"`
+	ChatId string `env:"TELEGRAM_CHAT_ID"`
 }
 
 func MustLoad() *Config {

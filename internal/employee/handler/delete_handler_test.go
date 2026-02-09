@@ -5,6 +5,7 @@ import (
 	"app/internal/employee/models"
 	"app/internal/employee/storage/cache"
 	"app/internal/http/response"
+	"app/lib/kafka"
 	"app/lib/logger"
 	"context"
 	"encoding/json"
@@ -21,7 +22,8 @@ func TestDeleteEmployee_Success(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 
 	router.DELETE("/employee/:id", createHandler.DeleteEmployee)
 
@@ -52,7 +54,8 @@ func TestDeleteEmployee_NotFound(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 	router.DELETE("/employee/:id", createHandler.DeleteEmployee)
 
 	req, _ := http.NewRequest(http.MethodDelete, "/employee/1", nil)

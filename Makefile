@@ -1,5 +1,10 @@
+init: copy-env build
+
+build:
+	docker compose up -d --build
+
 up:
 	docker compose up -d
 
-generate-swagger:
-	swagger generate spec -o ./swagger.json --scan-models
+copy-env:
+	cp .env .env.local

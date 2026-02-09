@@ -5,6 +5,7 @@ import (
 	"app/internal/employee/models"
 	"app/internal/employee/storage/cache"
 	"app/internal/http/response"
+	"app/lib/kafka"
 	"app/lib/logger"
 	"bytes"
 	"encoding/json"
@@ -21,7 +22,8 @@ func TestCreateEmployee_Success(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 
 	router.POST("/employees", createHandler.CreateEmployee)
 
@@ -54,7 +56,8 @@ func TestCreateEmployee_InvalidJSON(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 
 	router.POST("/employees", createHandler.CreateEmployee)
 
@@ -78,7 +81,8 @@ func TestCreateEmployee_ValidationError(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 	router.POST("/employees", createHandler.CreateEmployee)
 
 	tests := []struct {

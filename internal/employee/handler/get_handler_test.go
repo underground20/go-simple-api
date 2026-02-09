@@ -5,6 +5,7 @@ import (
 	"app/internal/employee/models"
 	"app/internal/employee/storage/cache"
 	"app/internal/http/response"
+	"app/lib/kafka"
 	"app/lib/logger"
 	"context"
 	"encoding/json"
@@ -21,7 +22,8 @@ func TestGetEmployee_Success(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 
 	router.GET("/employee/:id", createHandler.GetEmployee)
 
@@ -50,7 +52,8 @@ func TestGetEmployee_NotFound(t *testing.T) {
 	router := gin.New()
 
 	memoryStorage := cache.NewMemoryStorage()
-	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger())
+	producerMock := &kafka.ProducerMock{}
+	createHandler := handler.NewHandler(memoryStorage, logger.NewDiscardLogger(), producerMock)
 	router.GET("/employee/:id", createHandler.GetEmployee)
 
 	req, _ := http.NewRequest(http.MethodGet, "/employee/2", nil)
