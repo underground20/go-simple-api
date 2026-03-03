@@ -3,6 +3,7 @@ package kafka
 import (
 	"app/lib/logger"
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 	"time"
@@ -12,13 +13,13 @@ import (
 
 type Consumer struct {
 	reader  *kafka.Reader
-	handler func(kafka.Message)
+	handler func(kafka.Message) error
 	logger  *slog.Logger
 	wg      *sync.WaitGroup
 }
 
 func NewConsumer(
-	handler func(message kafka.Message),
+	handler func(message kafka.Message) error,
 	logger *slog.Logger,
 	brokers []string,
 	topic string,
@@ -30,9 +31,10 @@ func NewConsumer(
 			Topic:             topic,
 			GroupID:           groupId,
 			StartOffset:       kafka.FirstOffset,
-			CommitInterval:    1 * time.Second,
 			HeartbeatInterval: 3 * time.Second,
 			SessionTimeout:    30 * time.Second,
+			Logger:            kafka.LoggerFunc(logger.Info),
+			ErrorLogger:       kafka.LoggerFunc(logger.Error),
 		}),
 		handler: handler,
 		logger:  logger,
@@ -44,18 +46,39 @@ func (c *Consumer) ReadMessages(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			c.logger.Info("Shutting down consumer gracefully...")
+			c.wg.Wait()
 			return
 		default:
-			m, err := c.reader.ReadMessage(ctx)
+			msg, err := c.reader.FetchMessage(ctx)
 			if err != nil {
+				if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+					continue
+				}
 				c.logger.Error("failed to read message:", logger.Err(err))
 				continue
 			}
+
 			c.wg.Add(1)
-			go func() {
+			go func(m kafka.Message) {
 				defer c.wg.Done()
-				c.handler(m)
-			}()
+				err := c.handler(m)
+				if err != nil {
+					c.logger.Error("failed to handle message:", logger.Err(err))
+					return
+				}
+
+				commitErr := c.reader.CommitMessages(ctx, m)
+				if commitErr != nil {
+					c.logger.Error("Failed to commit offset",
+						slog.String("topic", m.Topic),
+						slog.Int("partition", m.Partition),
+						slog.Int64("offset", m.Offset),
+						logger.Err(commitErr))
+				} else {
+					c.logger.Debug("Committed offset", slog.Int64("offset", m.Offset))
+				}
+			}(msg)
 		}
 	}
 }

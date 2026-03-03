@@ -17,8 +17,8 @@ import (
 
 func ConfigureConsumer(logger *slog.Logger, cfg *config.Config) *kafkaApi.Consumer {
 	consumer := kafkaApi.NewConsumer(
-		func(m kafka.Message) {
-			handleMessage(logger, m, cfg)
+		func(m kafka.Message) error {
+			return handleMessage(logger, m, cfg)
 		},
 		logger,
 		cfg.Kafka.Brokers,
@@ -29,7 +29,7 @@ func ConfigureConsumer(logger *slog.Logger, cfg *config.Config) *kafkaApi.Consum
 	return consumer
 }
 
-func handleMessage(logger *slog.Logger, m kafka.Message, cfg *config.Config) {
+func handleMessage(logger *slog.Logger, m kafka.Message, cfg *config.Config) error {
 	logger.Info(
 		"Received kafka message",
 		"topic", m.Topic,
@@ -41,7 +41,7 @@ func handleMessage(logger *slog.Logger, m kafka.Message, cfg *config.Config) {
 	err := json.Unmarshal(m.Value, &employeeCreatedInfo)
 	if err != nil {
 		logger.Error("Failed to unmarshal kafka message", formatLog.Err(err))
-		return
+		return err
 	}
 
 	message := fmt.Sprintf("%s\n%s\n%s\n%s", "Employee created",
@@ -52,13 +52,16 @@ func handleMessage(logger *slog.Logger, m kafka.Message, cfg *config.Config) {
 
 	if cfg.Telegram.Token == "" || cfg.Telegram.ChatId == "" {
 		logger.Info("Telegram token or chat id is empty")
-		return
+		return nil
 	}
 
 	err = sendTelegramMessage(cfg.Telegram.Token, cfg.Telegram.ChatId, message)
 	if err != nil {
 		logger.Error("Failed to send telegram message", formatLog.Err(err))
+		return err
 	}
+
+	return nil
 }
 
 func sendTelegramMessage(token, chatID, message string) error {

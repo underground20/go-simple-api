@@ -24,10 +24,12 @@ type KafkaProducer struct {
 func NewProducer(brokers []string, topic string) *KafkaProducer {
 	return &KafkaProducer{
 		writer: &kafka.Writer{
-			Addr:     kafka.TCP(brokers...),
-			Topic:    topic,
-			Balancer: &kafka.LeastBytes{},
-			Async:    true,
+			Addr:                   kafka.TCP(brokers...),
+			Topic:                  topic,
+			Balancer:               &kafka.LeastBytes{},
+			Async:                  true,
+			RequiredAcks:           kafka.RequireOne,
+			AllowAutoTopicCreation: true,
 		},
 	}
 }
