@@ -2,9 +2,11 @@ package handler
 
 import (
 	"app/internal/department/models"
+	"app/internal/department/rbac"
 	depStorage "app/internal/department/storage"
 	emp "app/internal/employee/models"
 	empStorage "app/internal/employee/storage"
+	"app/internal/http/middleware"
 	"app/internal/http/response"
 	"app/lib/logger"
 	"log/slog"
@@ -53,6 +55,21 @@ func NewHandler(
 }
 
 func (h *Handler) CreateDepartment(c *gin.Context) {
+	authContext, ok := c.Request.Context().Value(middleware.AuthKey).(*middleware.AuthContext)
+	if !ok {
+		c.JSON(http.StatusBadRequest, response.Response{
+			Message: "Invalid auth context",
+		})
+		return
+	}
+
+	if err := rbac.Authorize(authContext, "create_department", "Does not create department"); err != nil {
+		c.JSON(http.StatusForbidden, response.Response{
+			Message: err.Error(),
+		})
+		return
+	}
+
 	var department models.Department
 	if err := c.BindJSON(&department); err != nil {
 		c.JSON(http.StatusBadRequest, response.Response{

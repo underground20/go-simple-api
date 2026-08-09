@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	Dsn      string `env:"MONGO_DB_DSN" env-required:"true"`
-	Dbname   string `env:"DB_NAME" env-required:"true"`
-	DbUser   string `env:"DB_USER" env-required:"true"`
-	DbPass   string `env:"DB_PASS" env-required:"true"`
-	HostPort string `env:"HOST_PORT" env-required:"true"`
+	Dsn       string `env:"MONGO_DB_DSN" env-required:"true"`
+	Dbname    string `env:"DB_NAME" env-required:"true"`
+	DbUser    string `env:"DB_USER" env-required:"true"`
+	DbPass    string `env:"DB_PASS" env-required:"true"`
+	HostPort  string `env:"HOST_PORT" env-required:"true"`
+	JWTSecret string `env:"JWT_SECRET" env-required:"true"`
 	Kafka
 	Telegram
 }

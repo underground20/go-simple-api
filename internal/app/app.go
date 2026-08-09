@@ -4,6 +4,7 @@ import (
 	"app/internal/config"
 	"app/internal/department"
 	"app/internal/employee"
+	"app/internal/http/middleware"
 	loggingMiddleware "app/internal/http/middleware/logger"
 	"app/internal/http/middleware/metrics"
 	"app/internal/notification"
@@ -33,7 +34,7 @@ type App struct {
 func New(logger *slog.Logger, cfg *config.Config) *App {
 	client := clientConnect(logger, cfg, context.Background())
 	db := client.Database(cfg.Dbname)
-	router := setupRouter(logger)
+	router := setupRouter(logger, cfg)
 
 	producer := kafkaApi.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
 	employee.Setup(router, db, logger, producer)
@@ -94,10 +95,11 @@ func (a *App) Run() {
 	a.logger.Info("server exiting")
 }
 
-func setupRouter(logger *slog.Logger) *gin.Engine {
+func setupRouter(logger *slog.Logger, cfg *config.Config) *gin.Engine {
 	router := gin.Default()
 	router.Use(loggingMiddleware.SlogMiddleware(logger))
 	router.Use(metrics.PrometheusMiddleware())
+	router.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 	router.GET("/metrics", metrics.PrometheusHandler())
 	return router
 }
